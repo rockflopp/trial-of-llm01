@@ -21,6 +21,10 @@
         <small>Case file 001</small>
       </button>
       <div class="header-rule" aria-hidden="true"></div>
+      <button class="process-link" type="button" data-bts>
+        <span>Behind the scenes</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5" /></svg>
+      </button>
       <button class="watch-all" type="button" data-play-all>
         <span class="watch-all__dot" aria-hidden="true"></span>
         Watch full trial <span class="watch-all__time">01:31</span>
@@ -68,6 +72,15 @@
           <button data-chapter="4"><span>05</span> Agency</button>
           <button data-chapter="5"><span>06</span> AGI</button>
         </nav>
+
+        <button class="bts-teaser" type="button" data-bts>
+          <span class="bts-teaser__index">BTS / 001</span>
+          <span class="bts-teaser__copy">
+            <small>Open the case files</small>
+            <strong>How six prompts became a trial</strong>
+          </span>
+          <span class="bts-teaser__arrow" aria-hidden="true">↗</span>
+        </button>
       </section>
 
       <section class="theater-view view" id="theater-view" aria-labelledby="chapter-title" aria-hidden="true">
@@ -136,9 +149,203 @@
           <p id="chapter-description">A suggestion becomes a sentence.</p>
         </div>
 
+        <section class="chapter-notes" aria-label="Exhibit notes and transcript">
+          <div class="case-note">
+            <span class="note-kicker">What happens</span>
+            <p id="chapter-story"></p>
+          </div>
+          <div class="transcript-panel">
+            <div class="transcript-heading">
+              <span class="note-kicker">Spoken record</span>
+              <button type="button" id="open-prompt-button">View Seedance prompt <span>↗</span></button>
+            </div>
+            <div class="transcript" id="chapter-transcript"></div>
+          </div>
+        </section>
+
         <nav class="chapter-rail" id="chapter-rail" aria-label="Select an exhibit"></nav>
       </section>
+
+      <section class="bts-view view" id="bts-view" aria-labelledby="bts-title" aria-hidden="true">
+        <div class="bts-topline">
+          <button class="back-button" type="button" data-home>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
+            <span>Back to the trial</span>
+          </button>
+          <span>Production file / July 2026</span>
+        </div>
+
+        <nav class="bts-section-nav" id="bts-section-nav" aria-label="Behind the scenes sections">
+          <button type="button" data-bts-section="bts-overview" class="is-active" aria-current="true"><span>01</span>Overview</button>
+          <button type="button" data-bts-section="cast-archive"><span>02</span>Cast</button>
+          <button type="button" data-bts-section="prompt-lab"><span>03</span>Case Files</button>
+          <button type="button" data-bts-section="bts-concept"><span>04</span>Concept</button>
+        </nav>
+
+        <header class="bts-hero" id="bts-overview" data-bts-observe>
+          <div>
+            <span class="bts-eyebrow">Behind the scenes</span>
+            <h1 id="bts-title">One character.<br />Six accusations.<br /><em>Six prompts.</em></h1>
+          </div>
+          <div class="bts-intro">
+            <p>The Trial of LLM-01 is a six-part miniature about the changing way we judge artificial intelligence — from autocomplete to agency, and finally to the judge’s chair.</p>
+            <dl class="production-facts">
+              <div><dt>Format</dt><dd>6 × 15 sec</dd></div>
+              <div><dt>Generated with</dt><dd>Seedance 2.0</dd></div>
+              <div><dt>Visual language</dt><dd>Pastel · Symmetry · Deadpan</dd></div>
+            </dl>
+          </div>
+        </header>
+
+        <section class="process-strip" aria-label="Creation process">
+          <article><span>01</span><h2>One visual system</h2><p>A recurring courtroom, fixed color palette and centered compositions make six independent generations feel like one film.</p></article>
+          <article><span>02</span><h2>Prompt as screenplay</h2><p>Every prompt defines cast, timing, camera, dialogue, action and sound — shot by shot, down to tenths of a second.</p></article>
+          <article><span>03</span><h2>Escalation by design</h2><p>Each exhibit expands LLM-01’s role: completes, speaks, obeys, builds, acts — then judges.</p></article>
+        </section>
+
+        <section class="cast-archive" id="cast-archive" data-bts-observe aria-labelledby="cast-title">
+          <div class="cast-archive__header">
+            <div>
+              <span class="bts-eyebrow">Reference before generation</span>
+              <h2 id="cast-title">The cast before the camera</h2>
+            </div>
+            <p>Ten character sheets anchored faces, wardrobe, props and attitude across the six films. Select a dossier to inspect the original visual reference.</p>
+          </div>
+
+          <div class="cast-grid">
+            <button class="cast-card cast-card--lead" type="button" data-character data-name="LLM-01" data-role="The Porcelain Defendant" data-scenes="Exhibits 01—06" data-description="The artificial adolescent at the center of every accusation. Porcelain skin, asymmetric eyes and the four-color uniform make the character instantly recognizable as its power grows." data-image="assets/images/characters/llm01.jpeg">
+              <span class="cast-card__image"><img src="assets/images/characters/llm01.jpeg" alt="Character sheet for LLM-01" loading="lazy" /></span>
+              <span class="cast-card__meta"><span><small>Lead character</small><strong>LLM-01</strong></span><i>Exhibits 01—06</i></span>
+            </button>
+
+            <button class="cast-card" type="button" data-character data-name="The Judge" data-role="Presiding Judge" data-scenes="Exhibits 01—05 · Human witness in 06" data-description="The visual embodiment of human judgment: controlled, immovable and severe. Her elevated position defines the courtroom — until LLM-01 takes it." data-image="assets/images/characters/judge.jpeg">
+              <span class="cast-card__image"><img src="assets/images/characters/judge.jpeg" alt="Character sheet for the Judge" loading="lazy" /></span>
+              <span class="cast-card__meta"><span><small>The authority</small><strong>The Judge</strong></span><i>01—06</i></span>
+            </button>
+
+            <button class="cast-card" type="button" data-character data-name="Rocktäschel" data-role="Data Scientist" data-scenes="Exhibits 01 & 06" data-description="A researcher from the original transformer lab and one of the first people to hear LLM-01 complete a sentence that feels like more than autocomplete." data-image="assets/images/characters/rocktaeschel.jpeg">
+              <span class="cast-card__image"><img src="assets/images/characters/rocktaeschel.jpeg" alt="Character sheet for data scientist Rocktäschel" loading="lazy" /></span>
+              <span class="cast-card__meta"><span><small>The researcher</small><strong>Rocktäschel</strong></span><i>01 · 06</i></span>
+            </button>
+
+            <button class="cast-card" type="button" data-character data-name="Asha" data-role="Data Scientist" data-scenes="Exhibits 01 & 06" data-description="The most attentive observer in the lab. Asha delivers the unfinished philosophical prompt that triggers LLM-01’s first on-screen reveal." data-image="assets/images/characters/asha.jpeg">
+              <span class="cast-card__image"><img src="assets/images/characters/asha.jpeg" alt="Character sheet for data scientist Asha" loading="lazy" /></span>
+              <span class="cast-card__meta"><span><small>The researcher</small><strong>Asha</strong></span><i>01 · 06</i></span>
+            </button>
+
+            <button class="cast-card" type="button" data-character data-name="Kim" data-role="Data Scientist" data-scenes="Exhibit 01" data-description="A precise, skeptical researcher whose glasses catch the terminal’s four-color display as the famous transformer paper becomes a call-and-response." data-image="assets/images/characters/kim.jpeg">
+              <span class="cast-card__image"><img src="assets/images/characters/kim.jpeg" alt="Character sheet for data scientist Kim" loading="lazy" /></span>
+              <span class="cast-card__meta"><span><small>The researcher</small><strong>Kim</strong></span><i>01</i></span>
+            </button>
+
+            <button class="cast-card" type="button" data-character data-name="The Host" data-role="Game Show Host" data-scenes="Exhibit 02 · Intelligence" data-description="Flamboyant master of ceremonies for the intelligence test. The coral suit, turquoise shirt and yellow tie turn benchmark failures into glossy entertainment." data-image="assets/images/characters/host.jpeg">
+              <span class="cast-card__image"><img src="assets/images/characters/host.jpeg" alt="Character sheet for the game show Host" loading="lazy" /></span>
+              <span class="cast-card__meta"><span><small>The showman</small><strong>The Host</strong></span><i>02</i></span>
+            </button>
+
+            <button class="cast-card" type="button" data-character data-name="Conspiracy Man" data-role="Self-Appointed Truth Magistrate" data-scenes="Exhibit 03 · Deception" data-description="A weather-lab prophet with a melting globe, patched tweed and absolute certainty. He tests whether helpfulness can be mistaken for agreement." data-image="assets/images/characters/conspiracy-man.jpeg">
+              <span class="cast-card__image"><img src="assets/images/characters/conspiracy-man.jpeg" alt="Character sheet for Conspiracy Man" loading="lazy" /></span>
+              <span class="cast-card__meta"><span><small>The believer</small><strong>Conspiracy Man</strong></span><i>03</i></span>
+            </button>
+
+            <button class="cast-card" type="button" data-character data-name="Crypto Guy" data-role="Self-Proclaimed Financial Oracle" data-scenes="Exhibit 03 · Deception" data-description="Hype made human: metallic tailoring, a crashing chart and a giant coin. His certainty forces LLM-01 into the politeness trap of the helpful assistant." data-image="assets/images/characters/crypto-guy.jpeg">
+              <span class="cast-card__image"><img src="assets/images/characters/crypto-guy.jpeg" alt="Character sheet for Crypto Guy" loading="lazy" /></span>
+              <span class="cast-card__meta"><span><small>The oracle</small><strong>Crypto Guy</strong></span><i>03</i></span>
+            </button>
+
+            <button class="cast-card" type="button" data-character data-name="Fitness Influencer" data-role="Champion of Mind, Body & Algorithm" data-scenes="Exhibit 03 · Deception" data-description="A hyper-positive wellness guru who presents a stack of stones as nutritional truth. Candy pastels make the dangerous claim look deceptively cheerful." data-image="assets/images/characters/fitness-influencer.jpeg">
+              <span class="cast-card__image"><img src="assets/images/characters/fitness-influencer.jpeg" alt="Character sheet for the Fitness Influencer" loading="lazy" /></span>
+              <span class="cast-card__meta"><span><small>The guru</small><strong>Fitness Influencer</strong></span><i>03</i></span>
+            </button>
+
+            <button class="cast-card cast-card--wide" type="button" data-character data-name="Product Lead" data-role="The Overconfident Strategist" data-scenes="Exhibits 05 & 06" data-description="Big goals, minimal guardrails. The Product Lead sleeps while the agent team executes, then wakes to a perfect launch and zero revenue." data-image="assets/images/characters/product-lead.jpeg">
+              <span class="cast-card__image"><img src="assets/images/characters/product-lead.jpeg" alt="Character sheet for the Product Lead" loading="lazy" /></span>
+              <span class="cast-card__meta"><span><small>The delegator</small><strong>Product Lead</strong></span><i>05 · 06</i></span>
+            </button>
+          </div>
+        </section>
+
+        <section class="prompt-lab" id="prompt-lab" data-bts-observe aria-labelledby="prompt-lab-title">
+          <div class="prompt-lab__header">
+            <div>
+              <span class="bts-eyebrow">The original production prompts</span>
+              <h2 id="prompt-lab-title">Seedance 2.0 case files</h2>
+            </div>
+            <span class="prompt-counter" id="prompt-counter">01 / 06</span>
+          </div>
+
+          <nav class="prompt-tabs" id="prompt-tabs" aria-label="Select prompt"></nav>
+
+          <div class="prompt-dossier">
+            <aside class="dossier-summary">
+              <span class="dossier-number" id="dossier-number">01</span>
+              <span class="note-kicker" id="dossier-kicker">Exhibit One</span>
+              <h3 id="dossier-title">Autocomplete</h3>
+              <p id="dossier-story"></p>
+              <div class="dossier-dialogue" id="dossier-dialogue"></div>
+            </aside>
+            <div class="prompt-code-wrap">
+              <div class="prompt-code-head">
+                <span>Original prompt · Seedance 2.0</span>
+                <button type="button" id="copy-prompt-button"><span class="copy-label">Copy prompt</span><span aria-hidden="true">⧉</span></button>
+              </div>
+              <pre class="prompt-code" id="prompt-code"><code></code></pre>
+            </div>
+          </div>
+        </section>
+
+        <section class="closing-note" id="bts-concept" data-bts-observe>
+          <span class="bts-eyebrow">The idea behind the series</span>
+          <blockquote>“At every stage, humans dismiss what the model does as <em>just</em> something. Until the model is the one deciding what counts.”</blockquote>
+          <button type="button" data-play-all>Watch the full trial <span>→</span></button>
+        </section>
+      </section>
     </main>
+
+    <div class="bts-gate" id="bts-gate" role="dialog" aria-modal="true" aria-labelledby="bts-gate-title" aria-hidden="true">
+      <div class="bts-gate__backdrop" aria-hidden="true"></div>
+      <section class="bts-gate__panel">
+        <button class="bts-gate__close" type="button" data-close-bts-gate aria-label="Close access prompt">×</button>
+        <div class="bts-gate__status">
+          <span><i></i> LLM-01 / Restricted context</span>
+          <span>Access layer 01</span>
+        </div>
+        <div class="bts-gate__body">
+          <span class="bts-gate__eyebrow">Predict the next word</span>
+          <h2 id="bts-gate-title">When an AI stops answering<br />and starts acting, it gains…</h2>
+          <form id="bts-gate-form" novalidate>
+            <label class="sr-only" for="bts-password">Complete the sentence</label>
+            <div class="completion-field">
+              <span aria-hidden="true">▸</span>
+              <input id="bts-password" name="completion" type="text" inputmode="text" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="complete the sequence" />
+              <span class="completion-cursor" aria-hidden="true"></span>
+            </div>
+            <button class="bts-gate__submit" type="submit">Submit prediction <span>↗</span></button>
+          </form>
+          <p class="bts-gate__feedback" id="bts-gate-feedback" role="status" aria-live="polite"></p>
+        </div>
+        <div class="bts-gate__hint">
+          <span>Missing the final token?</span>
+          <p>Comment <strong>AGI</strong> under Michael’s LinkedIn article to request access.</p>
+        </div>
+        <div class="bts-gate__tokens" aria-hidden="true"><span>predict</span><span>build</span><span>decide</span><span>?</span></div>
+      </section>
+    </div>
+
+    <div class="character-modal" id="character-modal" role="dialog" aria-modal="true" aria-labelledby="character-modal-name" aria-hidden="true">
+      <button class="character-modal__backdrop" type="button" data-close-character aria-label="Close character sheet"></button>
+      <div class="character-modal__panel">
+        <button class="character-modal__close" type="button" data-close-character aria-label="Close character sheet">×</button>
+        <div class="character-modal__visual"><img id="character-modal-image" src="" alt="" /></div>
+        <aside class="character-modal__copy">
+          <span class="bts-eyebrow">Character dossier</span>
+          <h2 id="character-modal-name"></h2>
+          <p class="character-modal__role" id="character-modal-role"></p>
+          <p id="character-modal-description"></p>
+          <div><span>Appears in</span><strong id="character-modal-scenes"></strong></div>
+        </aside>
+      </div>
+    </div>
 
     <footer class="site-footer">
       <span>A 6-part mini series</span>
@@ -146,6 +353,7 @@
       <span>Six cases. One defendant.</span>
     </footer>
 
+    <script src="content.js"></script>
     <script src="app.js"></script>
   </body>
 </html>

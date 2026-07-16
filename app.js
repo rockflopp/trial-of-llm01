@@ -1,14 +1,8 @@
-const chapters = [
-  { number: "01", roman: "One", title: "Autocomplete", description: "A suggestion becomes a sentence." },
-  { number: "02", roman: "Two", title: "Intelligence", description: "The benchmark enters the courtroom." },
-  { number: "03", roman: "Three", title: "Deception", description: "Trust is called to the witness stand." },
-  { number: "04", roman: "Four", title: "Employment", description: "The assistant takes a seat at the table." },
-  { number: "05", roman: "Five", title: "Agency", description: "The tool starts acting on its own." },
-  { number: "06", roman: "Six", title: "AGI", description: "The defendant takes the judge’s chair." },
-];
+const chapters = productionChapters;
 
 const posterView = document.querySelector("#poster-view");
 const theaterView = document.querySelector("#theater-view");
+const btsView = document.querySelector("#bts-view");
 const playerFrame = document.querySelector("#player-frame");
 const videoShell = document.querySelector("#video-shell");
 const video = document.querySelector("#chapter-video");
@@ -18,6 +12,8 @@ const chapterKicker = document.querySelector("#chapter-kicker");
 const chapterNumber = document.querySelector("#chapter-number");
 const chapterTitle = document.querySelector("#chapter-title");
 const chapterDescription = document.querySelector("#chapter-description");
+const chapterStory = document.querySelector("#chapter-story");
+const chapterTranscript = document.querySelector("#chapter-transcript");
 const exhibitCount = document.querySelector(".exhibit-label > span:last-child");
 const centerPlay = document.querySelector("#center-play");
 const playButton = document.querySelector("#play-button");
@@ -31,9 +27,44 @@ const endCard = document.querySelector("#end-card");
 const endTitle = document.querySelector("#end-title");
 const replayButton = document.querySelector("#replay-button");
 const nextButton = document.querySelector("#next-button");
+const openPromptButton = document.querySelector("#open-prompt-button");
+const promptTabs = document.querySelector("#prompt-tabs");
+const promptCounter = document.querySelector("#prompt-counter");
+const dossierNumber = document.querySelector("#dossier-number");
+const dossierKicker = document.querySelector("#dossier-kicker");
+const dossierTitle = document.querySelector("#dossier-title");
+const dossierStory = document.querySelector("#dossier-story");
+const dossierDialogue = document.querySelector("#dossier-dialogue");
+const promptCode = document.querySelector("#prompt-code code");
+const copyPromptButton = document.querySelector("#copy-prompt-button");
+const btsSectionNav = document.querySelector("#bts-section-nav");
+const characterModal = document.querySelector("#character-modal");
+const characterModalImage = document.querySelector("#character-modal-image");
+const characterModalName = document.querySelector("#character-modal-name");
+const characterModalRole = document.querySelector("#character-modal-role");
+const characterModalDescription = document.querySelector("#character-modal-description");
+const characterModalScenes = document.querySelector("#character-modal-scenes");
+const btsGate = document.querySelector("#bts-gate");
+const btsGateForm = document.querySelector("#bts-gate-form");
+const btsPassword = document.querySelector("#bts-password");
+const btsGateFeedback = document.querySelector("#bts-gate-feedback");
 
 let activeChapter = 0;
 let seeking = false;
+let lastCharacterTrigger = null;
+let lastBtsTrigger = null;
+let pendingBtsRequest = { promptIndex: null, sectionId: "bts-overview" };
+let btsAttempts = 0;
+
+function hasBtsAccess() {
+  try { return sessionStorage.getItem("llm01-bts-access") === "granted"; }
+  catch { return false; }
+}
+
+function rememberBtsAccess() {
+  try { sessionStorage.setItem("llm01-bts-access", "granted"); }
+  catch { /* Session storage is optional for this lightweight gate. */ }
+}
 
 function formatTime(value) {
   if (!Number.isFinite(value)) return "00:00";
@@ -63,12 +94,23 @@ function renderChapterRail() {
 }
 
 function showView(view) {
-  const showingTheater = view === "theater";
-  posterView.classList.toggle("is-active", !showingTheater);
-  theaterView.classList.toggle("is-active", showingTheater);
-  posterView.setAttribute("aria-hidden", String(showingTheater));
-  theaterView.setAttribute("aria-hidden", String(!showingTheater));
-  document.body.classList.toggle("is-watching", showingTheater);
+  const views = { poster: posterView, theater: theaterView, bts: btsView };
+  Object.entries(views).forEach(([name, element]) => {
+    const isActive = name === view;
+    element.classList.toggle("is-active", isActive);
+    element.setAttribute("aria-hidden", String(!isActive));
+  });
+  document.body.classList.toggle("is-watching", view === "theater");
+  document.body.classList.toggle("is-bts", view === "bts");
+}
+
+function renderTranscript(items, compact = false) {
+  return items.map(([speaker, line]) => `
+    <p${compact ? ' class="compact-line"' : ""}>
+      <span>${speaker}</span>
+      <q>${line}</q>
+    </p>
+  `).join("");
 }
 
 function hideEndCard() {
@@ -87,6 +129,8 @@ async function openChapter(index, shouldPlay = true) {
   chapterNumber.textContent = chapter.number;
   chapterTitle.textContent = chapter.title;
   chapterDescription.textContent = chapter.description;
+  chapterStory.textContent = chapter.story;
+  chapterTranscript.innerHTML = renderTranscript(chapter.transcript);
   exhibitCount.textContent = `Evidence ${chapter.number} / 06`;
   ambient.style.backgroundImage = `url("${poster}")`;
   video.poster = poster;
@@ -126,6 +170,128 @@ function returnHome() {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
+function renderPromptTabs() {
+  promptTabs.innerHTML = chapters.map((chapter, index) => `
+    <button type="button" data-prompt="${index}" aria-label="Open prompt ${chapter.number}: ${chapter.title}">
+      <span>${chapter.number}</span>
+      <strong>${chapter.title}</strong>
+    </button>
+  `).join("");
+}
+
+function selectPrompt(index, shouldScroll = false) {
+  activeChapter = Math.max(0, Math.min(chapters.length - 1, index));
+  const chapter = chapters[activeChapter];
+  promptCounter.textContent = `${chapter.number} / 06`;
+  dossierNumber.textContent = chapter.number;
+  dossierKicker.textContent = `Exhibit ${chapter.roman}`;
+  dossierTitle.textContent = chapter.title;
+  dossierStory.textContent = chapter.story;
+  dossierDialogue.innerHTML = renderTranscript(chapter.transcript, true);
+  promptCode.textContent = chapter.prompt;
+  copyPromptButton.classList.remove("is-copied");
+  copyPromptButton.querySelector(".copy-label").textContent = "Copy prompt";
+  document.querySelectorAll("[data-prompt]").forEach((button, buttonIndex) => {
+    const selected = buttonIndex === activeChapter;
+    button.classList.toggle("is-active", selected);
+    button.setAttribute("aria-current", selected ? "true" : "false");
+  });
+  if (shouldScroll) document.querySelector("#prompt-lab").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function setActiveBtsSection(sectionId) {
+  document.querySelectorAll("[data-bts-section]").forEach(button => {
+    const selected = button.dataset.btsSection === sectionId;
+    button.classList.toggle("is-active", selected);
+    button.setAttribute("aria-current", selected ? "true" : "false");
+  });
+}
+
+function navigateBtsSection(sectionId, smooth = true, updateHash = true) {
+  const target = document.getElementById(sectionId);
+  if (!target) return;
+  setActiveBtsSection(sectionId);
+  target.scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "start" });
+  if (updateHash) {
+    const slugs = { "bts-overview": "overview", "cast-archive": "cast", "prompt-lab": "case-files", "bts-concept": "concept" };
+    history.replaceState(null, "", `#behind-the-scenes/${slugs[sectionId] || "overview"}`);
+  }
+}
+
+function openBtsGate(promptIndex = null, sectionId = "bts-overview") {
+  video.pause();
+  pendingBtsRequest = { promptIndex, sectionId };
+  lastBtsTrigger = document.activeElement;
+  btsGate.classList.remove("has-error", "is-accepted");
+  btsGateFeedback.textContent = "";
+  btsPassword.value = "";
+  btsGate.classList.add("is-visible");
+  btsGate.setAttribute("aria-hidden", "false");
+  document.body.classList.add("has-bts-gate");
+  window.setTimeout(() => btsPassword.focus(), 120);
+}
+
+function closeBtsGate(restoreFocus = true) {
+  btsGate.classList.remove("is-visible", "has-error", "is-accepted");
+  btsGate.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("has-bts-gate");
+  if (restoreFocus && lastBtsTrigger instanceof HTMLElement) lastBtsTrigger.focus();
+}
+
+async function hashCompletion(value) {
+  const normalized = value.trim().toLowerCase();
+  if (window.crypto?.subtle) {
+    const bytes = new TextEncoder().encode(normalized);
+    const digest = await window.crypto.subtle.digest("SHA-256", bytes);
+    return Array.from(new Uint8Array(digest)).map(byte => byte.toString(16).padStart(2, "0")).join("");
+  }
+  return normalized === String.fromCharCode(97, 103, 101, 110, 99, 121) ? "fallback-match" : "fallback-miss";
+}
+
+function openBehindScenes(promptIndex = null, sectionId = "bts-overview", accessConfirmed = false) {
+  if (!accessConfirmed && !hasBtsAccess()) {
+    openBtsGate(promptIndex, sectionId);
+    return;
+  }
+  video.pause();
+  showView("bts");
+  selectPrompt(promptIndex ?? activeChapter, false);
+  setActiveBtsSection(sectionId);
+  history.replaceState(null, "", "#behind-the-scenes");
+  document.title = "Behind the Scenes | The Trial of LLM-01";
+  if (sectionId === "bts-overview") {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  } else {
+    window.setTimeout(() => navigateBtsSection(sectionId, true, true), 80);
+  }
+}
+
+function openCharacter(card) {
+  lastCharacterTrigger = card;
+  characterModalImage.src = card.dataset.image;
+  characterModalImage.alt = `Character sheet for ${card.dataset.name}`;
+  characterModalName.textContent = card.dataset.name;
+  characterModalRole.textContent = card.dataset.role;
+  characterModalDescription.textContent = card.dataset.description;
+  characterModalScenes.textContent = card.dataset.scenes;
+  characterModal.classList.add("is-visible");
+  characterModal.setAttribute("aria-hidden", "false");
+  document.body.classList.add("has-modal");
+  characterModal.querySelector(".character-modal__close").focus();
+}
+
+function closeCharacter() {
+  if (!characterModal.classList.contains("is-visible")) return;
+  characterModal.classList.remove("is-visible");
+  characterModal.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("has-modal");
+  if (lastCharacterTrigger) lastCharacterTrigger.focus();
+  window.setTimeout(() => {
+    characterModalImage.removeAttribute("src");
+    characterModalImage.alt = "";
+  }, 300);
+}
+
 function togglePlayback() {
   hideEndCard();
   if (video.paused) video.play().catch(() => {});
@@ -157,6 +323,8 @@ function enterFullscreen() {
 }
 
 renderChapterRail();
+renderPromptTabs();
+selectPrompt(0);
 
 document.addEventListener("click", (event) => {
   const chapterButton = event.target.closest("[data-chapter]");
@@ -164,10 +332,78 @@ document.addEventListener("click", (event) => {
 });
 
 document.querySelectorAll("[data-home]").forEach(button => button.addEventListener("click", returnHome));
-document.querySelector("[data-play-all]").addEventListener("click", () => {
+document.querySelectorAll("[data-play-all]").forEach(button => button.addEventListener("click", () => {
   autoplayToggle.checked = true;
   openChapter(0, true);
+}));
+document.querySelectorAll("[data-bts]").forEach(button => button.addEventListener("click", () => openBehindScenes()));
+document.querySelectorAll("[data-close-bts-gate]").forEach(button => button.addEventListener("click", () => {
+  closeBtsGate();
+  if (location.hash.startsWith("#behind-the-scenes")) returnHome();
+}));
+btsGateForm.addEventListener("submit", async event => {
+  event.preventDefault();
+  if (!btsPassword.value.trim()) {
+    btsGate.classList.add("has-error");
+    btsGateFeedback.textContent = "No token received. Complete the sequence first.";
+    btsPassword.focus();
+    return;
+  }
+
+  const result = await hashCompletion(btsPassword.value);
+  const accepted = result === "c4b2af4722ee54e317672875b2d8cf49aa884bf5820ec6091114fea5ec6560e4" || result === "fallback-match";
+  if (!accepted) {
+    btsAttempts += 1;
+    btsGate.classList.remove("is-accepted");
+    btsGate.classList.add("has-error");
+    btsGateFeedback.textContent = btsAttempts === 1
+      ? "Prediction rejected. The context expects a six-letter capability."
+      : "Token mismatch. Comment AGI under the LinkedIn article for the missing context.";
+    btsPassword.select();
+    return;
+  }
+
+  rememberBtsAccess();
+  btsAttempts = 0;
+  btsGate.classList.remove("has-error");
+  btsGate.classList.add("is-accepted");
+  btsGateFeedback.textContent = "Prediction accepted. Expanding context window…";
+  window.setTimeout(() => {
+    closeBtsGate(false);
+    openBehindScenes(pendingBtsRequest.promptIndex, pendingBtsRequest.sectionId, true);
+  }, 520);
 });
+btsSectionNav.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-bts-section]");
+  if (button) navigateBtsSection(button.dataset.btsSection);
+});
+promptTabs.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-prompt]");
+  if (button) selectPrompt(Number(button.dataset.prompt));
+});
+openPromptButton.addEventListener("click", () => {
+  const current = activeChapter;
+  openBehindScenes(current, "prompt-lab");
+});
+copyPromptButton.addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText(chapters[activeChapter].prompt);
+    copyPromptButton.classList.add("is-copied");
+    copyPromptButton.querySelector(".copy-label").textContent = "Copied";
+    window.setTimeout(() => {
+      copyPromptButton.classList.remove("is-copied");
+      copyPromptButton.querySelector(".copy-label").textContent = "Copy prompt";
+    }, 1800);
+  } catch {
+    const range = document.createRange();
+    range.selectNodeContents(promptCode);
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+  }
+});
+document.querySelectorAll("[data-character]").forEach(card => card.addEventListener("click", () => openCharacter(card)));
+document.querySelectorAll("[data-close-character]").forEach(button => button.addEventListener("click", closeCharacter));
 
 centerPlay.addEventListener("click", togglePlayback);
 playButton.addEventListener("click", togglePlayback);
@@ -234,6 +470,15 @@ muteButton.addEventListener("click", () => {
 fullscreenButton.addEventListener("click", enterFullscreen);
 
 document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && btsGate.classList.contains("is-visible")) {
+    closeBtsGate();
+    if (location.hash.startsWith("#behind-the-scenes")) returnHome();
+    return;
+  }
+  if (event.key === "Escape" && characterModal.classList.contains("is-visible")) {
+    closeCharacter();
+    return;
+  }
   if (!theaterView.classList.contains("is-active") || event.target.matches("input")) return;
   if (event.code === "Space") {
     event.preventDefault();
@@ -251,3 +496,18 @@ document.addEventListener("keydown", (event) => {
 
 const initialMatch = location.hash.match(/^#exhibit-([1-6])$/);
 if (initialMatch) openChapter(Number(initialMatch[1]) - 1, false);
+else {
+  const btsMatch = location.hash.match(/^#behind-the-scenes(?:\/(overview|cast|case-files|concept))?$/);
+  if (btsMatch) {
+    const sections = { overview: "bts-overview", cast: "cast-archive", "case-files": "prompt-lab", concept: "bts-concept" };
+    openBehindScenes(0, sections[btsMatch[1]] || "bts-overview");
+  }
+}
+
+const btsObserver = new IntersectionObserver(entries => {
+  if (!btsView.classList.contains("is-active")) return;
+  const visible = entries.filter(entry => entry.isIntersecting).sort((a, b) => Math.abs(a.boundingClientRect.top) - Math.abs(b.boundingClientRect.top));
+  if (visible[0]) setActiveBtsSection(visible[0].target.id);
+}, { rootMargin: "-18% 0px -68% 0px", threshold: 0 });
+
+document.querySelectorAll("[data-bts-observe]").forEach(section => btsObserver.observe(section));
