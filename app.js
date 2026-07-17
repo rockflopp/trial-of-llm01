@@ -6,6 +6,7 @@ const btsView = document.querySelector("#bts-view");
 const playerFrame = document.querySelector("#player-frame");
 const videoShell = document.querySelector("#video-shell");
 const video = document.querySelector("#chapter-video");
+const subtitleTrack = document.querySelector("#subtitle-track");
 const ambient = document.querySelector(".video-ambient");
 const chapterRail = document.querySelector("#chapter-rail");
 const chapterKicker = document.querySelector("#chapter-kicker");
@@ -18,6 +19,7 @@ const exhibitCount = document.querySelector(".exhibit-label > span:last-child");
 const centerPlay = document.querySelector("#center-play");
 const playButton = document.querySelector("#play-button");
 const muteButton = document.querySelector("#mute-button");
+const subtitlesButton = document.querySelector("#subtitles-button");
 const fullscreenButton = document.querySelector("#fullscreen-button");
 const timeline = document.querySelector("#timeline");
 const currentTime = document.querySelector("#current-time");
@@ -55,6 +57,10 @@ let lastCharacterTrigger = null;
 let lastBtsTrigger = null;
 let pendingBtsRequest = { promptIndex: null, sectionId: "bts-overview" };
 let btsAttempts = 0;
+let subtitlesEnabled = false;
+
+try { subtitlesEnabled = localStorage.getItem("llm01-subtitles") === "enabled"; }
+catch { /* Local storage is optional. */ }
 
 function hasBtsAccess() {
   try { return sessionStorage.getItem("llm01-bts-access") === "granted"; }
@@ -75,6 +81,10 @@ function formatTime(value) {
 
 function chapterVideo(index) {
   return `assets/videos/chapter-${index + 1}.mp4`;
+}
+
+function chapterSubtitles(index) {
+  return `assets/subtitles/chapter-${index + 1}.vtt`;
 }
 
 function chapterImage(index) {
@@ -118,6 +128,20 @@ function hideEndCard() {
   endCard.setAttribute("aria-hidden", "true");
 }
 
+function applySubtitleMode() {
+  if (video.textTracks[0]) video.textTracks[0].mode = subtitlesEnabled ? "showing" : "disabled";
+  subtitlesButton.classList.toggle("is-active", subtitlesEnabled);
+  subtitlesButton.setAttribute("aria-pressed", String(subtitlesEnabled));
+  subtitlesButton.setAttribute("aria-label", subtitlesEnabled ? "Disable English subtitles" : "Enable English subtitles");
+}
+
+function toggleSubtitles() {
+  subtitlesEnabled = !subtitlesEnabled;
+  try { localStorage.setItem("llm01-subtitles", subtitlesEnabled ? "enabled" : "disabled"); }
+  catch { /* Local storage is optional. */ }
+  applySubtitleMode();
+}
+
 async function openChapter(index, shouldPlay = true) {
   activeChapter = Math.max(0, Math.min(chapters.length - 1, index));
   const chapter = chapters[activeChapter];
@@ -134,6 +158,8 @@ async function openChapter(index, shouldPlay = true) {
   exhibitCount.textContent = `Evidence ${chapter.number} / 06`;
   ambient.style.backgroundImage = `url("${poster}")`;
   video.poster = poster;
+  subtitleTrack.src = chapterSubtitles(activeChapter);
+  subtitleTrack.label = `English · Exhibit ${chapter.number}`;
 
   if (!video.src.endsWith(chapterVideo(activeChapter))) {
     video.src = chapterVideo(activeChapter);
@@ -141,6 +167,7 @@ async function openChapter(index, shouldPlay = true) {
   } else {
     video.currentTime = 0;
   }
+  applySubtitleMode();
 
   document.querySelectorAll(".chapter-card").forEach((card, cardIndex) => {
     const selected = cardIndex === activeChapter;
@@ -431,6 +458,7 @@ video.addEventListener("pause", () => {
 
 video.addEventListener("loadedmetadata", () => {
   duration.textContent = formatTime(video.duration);
+  applySubtitleMode();
 });
 
 video.addEventListener("timeupdate", updateTimeline);
@@ -467,6 +495,8 @@ muteButton.addEventListener("click", () => {
   muteButton.setAttribute("aria-label", video.muted ? "Unmute" : "Mute");
 });
 
+subtitlesButton.addEventListener("click", toggleSubtitles);
+
 fullscreenButton.addEventListener("click", enterFullscreen);
 
 document.addEventListener("keydown", (event) => {
@@ -489,6 +519,8 @@ document.addEventListener("keydown", (event) => {
     openChapter(Math.max(activeChapter - 1, 0), true);
   } else if (event.key === "Escape" && !document.fullscreenElement) {
     returnHome();
+  } else if (event.key.toLowerCase() === "c") {
+    toggleSubtitles();
   } else if (/^[1-6]$/.test(event.key)) {
     openChapter(Number(event.key) - 1, true);
   }
