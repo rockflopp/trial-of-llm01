@@ -31,6 +31,8 @@ jobs:
           mkdir -p _site
           cp index.html styles.css app.js content.js .nojekyll _site/
           cp -R assets _site/assets
+          mkdir -p _site/mila-brighton
+          cp -R mila-brighton/. _site/mila-brighton/
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
