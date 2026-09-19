@@ -16,12 +16,12 @@
 
 <section id="start" class="card">
 <div style="font-size:46px">🌊 🐦 🏖️</div><h2>Wie schwer soll Mila üben?</h2>
-<p class="muted">Nur tippen: Multiple Choice, Zahlen, Bilderrätsel, Lückensätze und Satz-Puzzles.</p>
+<p class="muted">Nur tippen: Multiple Choice, Zahlen, Bilderrätsel, Lückensätze und Satz-Puzzles. Ultra 2.0 prüft zusätzlich Rechtschreibung, Fehlererkennung und Satzbau mit falschen Ablenkern.</p>
 <div class="modes">
 <button class="mode" data-n="12" type="button">⚡ Schnell<small>12 Aufgaben · ca. 5 Min.</small></button>
 <button class="mode sel" data-n="20" type="button">🎯 Normal<small>20 Aufgaben · ca. 8–10 Min.</small></button>
 <button class="mode" data-n="34" type="button">🏆 Komplett<small>34 Aufgaben · ca. 15 Min.</small></button>
-<button class="mode ultra" data-n="40" data-hard="1" type="button"><b>☠️ Ultra schwer</b><small>40 knifflige Aufgaben · nur 1 Versuch</small></button>
+<button class="mode ultra" data-n="48" data-hard="1" type="button"><b>☠️ Ultra 2.0</b><small>48 schwere Aufgaben · Rechtschreibung, Fehlerjagd, Fallen, Ablenker · 1 Versuch</small></button>
 </div><button id="startBtn" class="primary" type="button" style="margin-top:14px">Start →</button>
 </section>
 
@@ -56,53 +56,159 @@ function vfind(x){for(var i=0;i<V.length;i++)if(V[i].en===x)return V[i];return n
 function opts(ans,field,cat){var a=V.filter(function(v){return v[field]!==ans&&(v.cat===cat||cat==="Sätze")}).map(function(v){return v[field]});a=pick(a,3);while(a.length<3)a.push(["beach","seven","nice"][a.length]);a.push(ans);return sh(a)}
 function pool(){var p=[];V.forEach(function(v){p.push({t:"mc",q:'Was bedeutet „'+v.en+'“?',a:v.de,o:opts(v.de,"de",v.cat),k:v.en});p.push({t:"mc",q:'Wie heißt „'+v.de+'“ auf Englisch?',a:v.en,o:opts(v.en,"en",v.cat),k:v.en})});P.forEach(function(x){var v=vfind(x[0]);p.push({t:"pic",q:"Was siehst du?",a:v.en,o:opts(v.en,"en",v.cat),k:v.en,e:x[1]})});B.forEach(function(w){p.push({t:"build",q:"Baue den englischen Satz.",a:w.join(" "),w:w,k:w.join(" ")})});p.push({t:"mc",q:"I ___ the picture.",a:"like",o:sh(["like","sea","eleven","girl"]),k:"(to) like"});p.push({t:"mc",q:"I ___ Scout is nice.",a:"think",o:sh(["think","beach","picture","seven"]),k:"(to) think"});p.push({t:"mc",q:"Welches englische Wort ist KEINE Zahl?",a:"sky",o:sh(["five","seven","sky","twelve"]),k:"sky"});p.push({t:"mc",q:"Welches Wort bezeichnet KEINEN Menschen?",a:"stone",o:sh(["boy","girl","my friend","stone"]),k:"stone"});return p}
 function ultraPool(){
-var h=[
-{q:"Welche Übersetzung ist FALSCH?",a:"sea → der Strand",o:["sea → der Strand","beach → der Strand","sky → der Himmel","stone → der Stein","seagull → die Möwe"],k:"sea"},
-{q:"Welche Übersetzung ist FALSCH?",a:"nice → das Meer",o:["nice → das Meer","too → auch","picture → das Bild","the → der / die / das","boy → der Junge"],k:"nice"},
-{q:"Welcher Satz bedeutet „Ich mag das Bild.“?",a:"I like the picture.",o:["I like the picture.","I think the picture.","I see the picture.","I like the sea.","I think Scout is nice."],k:"I like the picture."},
-{q:"Welcher Satz bedeutet „Ich finde Scout nett.“?",a:"I think Scout is nice.",o:["I think Scout is nice.","I like Scout is nice.","I see Scout is nice.","I think Scout is eleven.","I like the picture."],k:"I think Scout is nice."},
-{q:"Welche Form ist korrekt?",a:"I'm eleven years old.",o:["I'm eleven years old.","I'm eleven year old.","I eleven years old.","I'm eleven old years.","I'm years eleven old."],k:"I'm eleven years old."},
-{q:"Welche Begrüßung ist korrekt?",a:"Welcome to Brighton.",o:["Welcome to Brighton.","Welcome at Brighton.","Welcome in to Brighton.","Welcome Brighton to.","Welcome on Brighton."],k:"Welcome to Brighton."},
-{q:"Welche Form ist korrekt?",a:"My name is Alice.",o:["My name is Alice.","My is name Alice.","Name my is Alice.","My name Alice is.","I name is Alice."],k:"My name is Alice."},
-{q:"Welches Wort kann „denken / glauben / meinen“ bedeuten?",a:"(to) think",o:["(to) think","(to) like","(to) see","nice","too"],k:"(to) think"},
-{q:"Welches Wort bedeutet „mögen“?",a:"(to) like",o:["(to) like","(to) think","(to) see","nice","the"],k:"(to) like"},
-{q:"Welche Wendung bedeutet „am Meer“?",a:"by the sea",o:["by the sea","in the sea","at the beach","in England","by the sky"],k:"by the sea"},
-{q:"Was ist der Unterschied? Wähle das Wort für STRAND.",a:"beach",o:["beach","sea","sky","stone","city"],k:"beach"},
-{q:"Was ist der Unterschied? Wähle das Wort für MEER.",a:"sea",o:["sea","beach","sky","stone","city"],k:"sea"},
-{q:"Welches Wort ist die Möwe?",a:"seagull",o:["seagull","sea","girl","sky","stone"],k:"seagull"},
-{q:"Welches Wort hat hier die Mehrzahl „cities“?",a:"a city, cities",o:["a city, cities","sea","beach","picture","my friend"],k:"a city, cities"},
-{q:"Welches kleine Wort bedeutet „auch“?",a:"too",o:["too","the","to","two","think"],k:"too"},
-{q:"Achtung ähnlich: Welches bedeutet die Zahl ZWEI?",a:"two",o:["two","too","to","twelve","ten"],k:"two"},
-{q:"Welche Zahl kommt direkt nach eleven?",a:"twelve",o:["twelve","ten","nine","eight","two"],k:"twelve"},
-{q:"Welche Zahl ist ACHT?",a:"eight",o:["eight","eleven","twelve","three","six"],k:"eight"},
-{q:"Welche Zahl ist ELF?",a:"eleven",o:["eleven","eight","twelve","seven","ten"],k:"eleven"},
-{q:"Welche Schreibweise für ZWÖLF ist richtig?",a:"twelve",o:["twelve","twelwe","twelv","twelweve","twelvee"],k:"twelve"},
-{q:"Welche Schreibweise für ACHT ist richtig?",a:"eight",o:["eight","eigth","aight","eigt","eighth"],k:"eight"},
-{q:"Welche Aussage passt zu Brighton aus den Vokabeln?",a:"a city by the sea",o:["a city by the sea","a stone in the sky","a beach in a city","a seagull in England only","a picture by the boy"],k:"by the sea"},
-{q:"Welche zwei Wörter gehören semantisch am engsten zusammen?",a:"beach + sea",o:["beach + sea","boy + twelve","picture + eleven","the + stone","nice + sky"],k:"beach"},
-{q:"Welche zwei Wörter sind Personen?",a:"boy + girl",o:["boy + girl","sea + beach","sky + stone","picture + city","too + the"],k:"boy"},
-{q:"Welche zwei sind Verben?",a:"(to) like + (to) think",o:["(to) like + (to) think","nice + picture","sea + beach","boy + girl","too + the"],k:"(to) like"},
-{q:"Welcher Satz nennt einen Namen?",a:"My name is Alice.",o:["My name is Alice.","I'm from Brighton.","I'm eleven years old.","Welcome to Brighton.","I like the picture."],k:"My name is Alice."},
-{q:"Welcher Satz nennt ein Alter?",a:"I'm eleven years old.",o:["I'm eleven years old.","I'm from Brighton.","My name is Alice.","Welcome to Brighton.","I like the picture."],k:"I'm eleven years old."},
-{q:"Welcher Satz sagt, wo jemand herkommt?",a:"I'm from Brighton.",o:["I'm from Brighton.","I'm eleven years old.","I like the picture.","Welcome to Brighton.","My name is Alice."],k:"I'm from Brighton."},
-{q:"Welches Wort passt: I ___ the picture.",a:"like",o:["like","think","sea","nice","eleven"],k:"(to) like"},
-{q:"Welches Wort passt: I ___ Scout is nice.",a:"think",o:["think","like","see","picture","too"],k:"(to) think"}
+var out=[];
+function add(g,label,q,a,o,k,why){out.push({t:"mc",g:g,label:label,q:q,a:a,o:sh(o),k:k,why:why||""})}
+
+/* 1) Rechtschreibung: immer sehr ähnliche Varianten */
+var spell=[
+["Welcome","Welcome",["Welcom","Wellcome","Welcone","Wlecome"],"Welcome"],
+["Brighton","Brighton",["Brigthon","Brighon","Brighten","Brghton"],"Welcome to Brighton."],
+["eleven","eleven",["elven","eleveen","elevan","eleeven"],"eleven"],
+["twelve","twelve",["twleve","twelwe","twelv","tweleve"],"twelve"],
+["eight","eight",["eigth","eigt","egith","eihgt"],"eight"],
+["cities","cities",["citys","citis","cietes","citiies"],"a city, cities"],
+["friend","friend",["freind","frend","firend","friand"],"my friend"],
+["beach","beach",["beech","baech","becah","beache"],"beach"],
+["seagull","seagull",["seagul","seagall","seaglul","seegull"],"seagull"],
+["picture","picture",["pictuer","piture","pictrue","picturre"],"picture"],
+["think","think",["thnik","tihnk","thinkk","thinc"],"(to) think"],
+["like","like",["lkie","liek","liike","lik"],"(to) like"],
+["nice","nice",["ncie","nicce","nise","niice"],"nice"],
+["stone","stone",["stoen","sotne","sttone","ston"],"stone"],
+["girl","girl",["gril","girll","giril","gurl"],"girl"],
+["England","England",["Engalnd","Englnad","Englad","Englend"],"in England"]
 ];
-return h.map(function(x){return{t:"mc",q:x.q,a:x.a,o:sh(x.o),k:x.k,hard:true}}).concat(
-B.map(function(w){return{t:"build",q:"ULTRA: Baue den Satz ohne Hinweis.",a:w.join(" "),w:w,k:w.join(" "),hard:true}})
-)}
-function make(k){if(ultra){var hp=ultraPool(),base=pool().filter(function(x){return x.t!=="pic"});var o=sh(hp).slice(0,Math.min(hp.length,k));if(o.length<k)o=o.concat(sh(base).slice(0,k-o.length));return sh(o).slice(0,k)}var p=pool(),o=pick(p.filter(function(x){return x.t==="pic"}),Math.min(4,Math.floor(k/5))).concat(pick(p.filter(function(x){return x.t==="build"}),Math.min(4,Math.floor(k/6))));var rest=p.filter(function(x){return o.indexOf(x)<0});return sh(o.concat(pick(rest,k-o.length))).slice(0,k)}
+spell.forEach(function(s){
+  add("spell","🔎 RECHTSCHREIBUNG","Nur EINE Schreibweise ist exakt richtig. Welche?",s[1],[s[1]].concat(s[2]),s[3],"Richtig: "+s[1]);
+});
+
+/* 2) Fehlerjäger: vier echte Wörter, ein subtiler Tippfehler */
+[
+["Welches Wort ist falsch geschrieben?", "freind", ["eleven","picture","freind","beach","stone"], "my friend", "friend"],
+["Welches Wort ist falsch geschrieben?", "eigth", ["twelve","eigth","seagull","city","nice"], "eight", "eight"],
+["Welches Wort ist falsch geschrieben?", "pictuer", ["girl","picture","pictuer","think","sea"], "picture", "picture"],
+["Welches Wort ist falsch geschrieben?", "thnik", ["like","nice","thnik","stone","sky"], "(to) think", "think"],
+["Welches Wort ist falsch geschrieben?", "seagul", ["beach","seagul","stone","eleven","boy"], "seagull", "seagull"],
+["Welches Wort ist falsch geschrieben?", "twleve", ["eight","twleve","girl","picture","friend"], "twelve", "twelve"],
+["Welches Wort ist falsch geschrieben?", "Brigthon", ["England","Brighton","Brigthon","Welcome","Alice"], "Welcome to Brighton.", "Brighton"],
+["Welches Wort ist falsch geschrieben?", "Engalnd", ["Brighton","Engalnd","England","Alice","Scout"], "in England", "England"],
+["Welches Wort ist falsch geschrieben?", "baech", ["beach","sea","baech","sky","stone"], "beach", "beach"],
+["Welches Wort ist falsch geschrieben?", "ncie", ["nice","think","like","ncie","too"], "nice", "nice"],
+["Welches Wort ist falsch geschrieben?", "citys", ["city","cities","citys","friend","girl"], "a city, cities", "cities"],
+["Welches Wort ist falsch geschrieben?", "lkie", ["like","think","lkie","picture","nice"], "(to) like", "like"]
+].forEach(function(x){add("hunt","🕵️ FEHLERJÄGER",x[0],x[1],x[2],x[3],"Korrekt geschrieben: "+x[4])});
+
+/* 3) Fehlendes Buchstabenpaar */
+[
+["sea__ll","gu",["gu","ug","ga","go","gg"],"seagull","seagull"],
+["pict__e","ur",["ur","ru","or","ure","ar"],"picture","picture"],
+["tw__ve","el",["el","le","al","il","ee"],"twelve","twelve"],
+["el__en","ev",["ev","ve","av","ee","iv"],"eleven","eleven"],
+["ei__t","gh",["gh","hg","ht","gt","ch"],"eight","eight"],
+["fr__nd","ie",["ie","ei","ee","i","ea"],"my friend","friend"],
+["Bri__ton","gh",["gh","hg","ght","h","g"],"Welcome to Brighton.","Brighton"],
+["th__k","in",["in","ni","i","en","on"],"(to) think","think"],
+["be__h","ac",["ac","ca","ee","ea","a"],"beach","beach"],
+["cit__s","ie",["ie","ei","y","ee","ia"],"a city, cities","cities"],
+["Eng__nd","la",["la","al","le","ln","el"],"in England","England"]
+].forEach(function(x){add("gap","🧩 BUCHSTABEN-CODE","Welche Buchstaben fehlen?  "+x[0],x[1],x[2],x[3],"Das ganze Wort lautet: "+x[4])});
+
+/* 4) Ganze Sätze: genau eine Variante ist komplett korrekt */
+[
+["Welcome to Brighton.",["Welcome to Brighton.","Welcom to Brighton.","Welcome too Brighton.","Welcome to Brigthon.","Welcome to Brighten."],"Welcome to Brighton."],
+["My name is Alice.",["My name is Alice.","My naem is Alice.","My name is Alcie.","My name are Alice.","My name is Alicee."],"My name is Alice."],
+["I'm from Brighton.",["I'm from Brighton.","Im from Brighton.","I'm form Brighton.","I'm from Brigthon.","I'm from Brighten."],"I'm from Brighton."],
+["I'm eleven years old.",["I'm eleven years old.","I'm elevn years old.","I'm eleven yaers old.","I'm eleven year old.","I'm elven years old."],"I'm eleven years old."],
+["I like the picture.",["I like the picture.","I lkie the picture.","I like the pictuer.","I like teh picture.","I like the pictrue."],"I like the picture."],
+["I think Scout is nice.",["I think Scout is nice.","I thnik Scout is nice.","I think Scout is ncie.","I think Scuot is nice.","I think Scout are nice."],"I think Scout is nice."],
+["I am from Brighton.",["I am from Brighton.","I am form Brighton.","I am from Brigthon.","I an from Brighton.","I am from Brighten."],"I am from Brighton."]
+].forEach(function(x){add("sentence","✍️ SATZ-CHECK","Nur EIN Satz ist komplett richtig geschrieben. Welcher?",x[0],x[1],x[2],"Richtig: "+x[0])});
+
+/* 5) Falsches Wort IM Satz finden */
+[
+["Welcome to Brigthon.","Brigthon",["Welcome","to","Brigthon"],"Welcome to Brighton.","Brighton"],
+["My naem is Alice.","naem",["My","naem","is","Alice"],"My name is Alice.","name"],
+["I'm elevn years old.","elevn",["I'm","elevn","years","old"],"I'm eleven years old.","eleven"],
+["I lkie the picture.","lkie",["I","lkie","the","picture"],"I like the picture.","like"],
+["I think Scout is ncie.","ncie",["I","think","Scout","is","ncie"],"I think Scout is nice.","nice"],
+["Welcome too Brighton.","too",["Welcome","too","Brighton"],"Welcome to Brighton.","to"],
+["I am form Brighton.","form",["I","am","form","Brighton"],"I am from Brighton.","from"],
+["I like teh picture.","teh",["I","like","teh","picture"],"I like the picture.","the"],
+["A ctiy by the sea.","ctiy",["A","ctiy","by","the","sea"],"a city, cities","city"],
+["The seagul is by the sea.","seagul",["The","seagul","is","by","the","sea"],"seagull","seagull"]
+].forEach(function(x){add("worderror","🚨 FEHLER IM SATZ","Welches Wort ist hier falsch?  “"+x[0]+"”",x[1],x[2],x[3],"Es muss „"+x[4]+"“ heißen.")});
+
+/* 6) Paare: beide Teile müssen stimmen */
+[
+["picture + twelve",["picture + twelve","pictuer + twelve","picture + twleve","piture + twelwe","pictrue + tweleve"],"picture"],
+["beach + seagull",["beach + seagull","beech + seagull","beach + seagul","baech + seagall","becah + seaglul"],"beach"],
+["friend + cities",["friend + cities","freind + cities","friend + citys","frend + citis","firend + cietes"],"my friend"],
+["eight + eleven",["eight + eleven","eigth + eleven","eight + elven","eigt + eleveen","egith + elevan"],"eight"],
+["think + nice",["think + nice","thnik + nice","think + ncie","tihnk + nise","thinc + nicce"],"(to) think"],
+["Brighton + England",["Brighton + England","Brigthon + England","Brighton + Engalnd","Brighten + Englend","Brighon + Englnad"],"Welcome to Brighton."],
+["like + picture",["like + picture","lkie + picture","like + pictuer","liek + piture","liike + pictrue"],"(to) like"],
+["twelve + cities",["twelve + cities","twleve + cities","twelve + citys","twelwe + citis","tweleve + cietes"],"twelve"]
+].forEach(function(x){add("pair","🔐 DOPPEL-CHECK","Bei welchem Paar sind BEIDE Wörter richtig geschrieben?",x[0],x[1],x[2],"Beide korrekt: "+x[0])});
+
+/* 7) Bedeutung UND Rechtschreibung gleichzeitig */
+[
+["Welche Kombination ist komplett richtig?","beach → der Strand",["beach → der Strand","beech → der Strand","beach → das Meer","sea → der Strand","baech → das Meer"],"beach"],
+["Welche Kombination ist komplett richtig?","sea → das Meer",["sea → das Meer","see → das Meer","sea → der Strand","beach → das Meer","sae → das Meer"],"sea"],
+["Welche Kombination ist komplett richtig?","seagull → die Möwe",["seagull → die Möwe","seagul → die Möwe","seagull → der Himmel","seagall → der Stein","seegull → die Möwe"],"seagull"],
+["Welche Kombination ist komplett richtig?","picture → das Bild",["picture → das Bild","pictuer → das Bild","picture → denken","pictrue → das Meer","piture → das Bild"],"picture"],
+["Welche Kombination ist komplett richtig?","(to) think → denken / glauben / meinen",["(to) think → denken / glauben / meinen","(to) thnik → denken / glauben / meinen","(to) think → mögen","(to) like → denken / glauben / meinen","think → das Bild"],"(to) think"],
+["Welche Kombination ist komplett richtig?","my friend → mein Freund / meine Freundin",["my friend → mein Freund / meine Freundin","my freind → mein Freund / meine Freundin","my friend → das Mädchen","my frend → mein Freund","friend → die Möwe"],"my friend"],
+["Welche Kombination ist komplett richtig?","too → auch",["too → auch","two → auch","too → zwei","to → auch","too → das Meer"],"too"],
+["Welche Kombination ist komplett richtig?","a city, cities → eine Stadt, Städte",["a city, cities → eine Stadt, Städte","a city, citys → eine Stadt, Städte","a ctiy, cities → eine Stadt, Städte","a city, cities → der Strand","cities → die Möwe"],"a city, cities"]
+].forEach(function(x){add("meaning","🧠 BEDEUTUNG + SCHREIBUNG",x[0],x[1],x[2],x[3],"Richtig: "+x[1])});
+
+/* 8) Zahl- und Homophon-Fallen */
+[
+["Welche Zeile ist korrekt von 9 bis 12?","nine – ten – eleven – twelve",["nine – ten – eleven – twelve","nine – ten – twelve – eleven","nine – eleven – ten – twelve","nine – ten – elven – twelve","nine – ten – eleven – twleve"],"eleven"],
+["Welche Schreibweise bedeutet die Zahl 2?","two",["two","too","to","twu","tow"],"two"],
+["Welche Schreibweise bedeutet „auch“?","too",["too","two","to","tow","ttoo"],"too"],
+["Welches Paar unterscheidet Zahl und „auch“ korrekt?","two = zwei · too = auch",["two = zwei · too = auch","too = zwei · two = auch","to = zwei · too = auch","two = auch · to = zwei","two = zwei · to = auch"],"too"],
+["Welche Zahl ist korrekt geschrieben?","eight",["eigth","eight","eigt","egith","eihgt"],"eight"],
+["Welche Zahl ist korrekt geschrieben?","twelve",["twleve","twelve","twelwe","twelv","tweleve"],"twelve"],
+["Welche Zahl ist korrekt geschrieben?","eleven",["elven","eleven","eleveen","elevan","eleeven"],"eleven"]
+].forEach(function(x){add("trap","⚠️ WORT-FALLE",x[0],x[1],x[2],x[3],"Richtig: "+x[1])});
+
+/* 9) Satzbau mit EXTRA falschen Wörtern: nicht alle Kacheln gehören in den Satz */
+[
+{a:"Welcome to Brighton.",w:["Welcome","to","Brighton.","Welcom","too","Brigthon."]},
+{a:"My name is Alice.",w:["My","name","is","Alice.","naem","are","Alcie."]},
+{a:"I'm from Brighton.",w:["I'm","from","Brighton.","form","Brigthon.","am"]},
+{a:"I am from Brighton.",w:["I","am","from","Brighton.","I'm","form","Brighten."]},
+{a:"I'm eleven years old.",w:["I'm","eleven","years","old.","elevn","year","olds."]},
+{a:"I like the picture.",w:["I","like","the","picture.","lkie","teh","pictuer."]},
+{a:"I think Scout is nice.",w:["I","think","Scout","is","nice.","thnik","are","ncie."]}
+].forEach(function(x){out.push({t:"build",g:"build",label:"🧱 SATZBAU + ABLENKER",q:"Baue den richtigen Satz. Einige Kacheln sind absichtlich falsch.",a:x.a,w:x.w,k:x.a,hard:true,why:"Richtig: "+x.a})});
+
+return out
+}
+
+function make(k){
+if(ultra){
+  var hp=ultraPool(), groups=["spell","hunt","gap","sentence","worderror","pair","meaning","trap","build"];
+  var quota={spell:9,hunt:6,gap:5,sentence:5,worderror:5,pair:5,meaning:5,trap:4,build:4};
+  var o=[];
+  groups.forEach(function(g){o=o.concat(pick(hp.filter(function(x){return x.g===g}),quota[g]||0))});
+  if(o.length<k){var rest=hp.filter(function(x){return o.indexOf(x)<0});o=o.concat(pick(rest,k-o.length))}
+  return sh(o).slice(0,k)
+}
+var p=pool(),o=pick(p.filter(function(x){return x.t==="pic"}),Math.min(4,Math.floor(k/5))).concat(pick(p.filter(function(x){return x.t==="build"}),Math.min(4,Math.floor(k/6))));var rest=p.filter(function(x){return o.indexOf(x)<0});return sh(o.concat(pick(rest,k-o.length))).slice(0,k)
+}
 function home(){qs=[];ix=0;sc=0;st=0;first=true;bad=[];cur=null;ultra=false;n=20;Array.prototype.forEach.call(document.querySelectorAll(".mode"),function(x){x.classList.remove("sel")});var def=document.querySelector(".mode[data-n=\"20\"]");if(def)def.classList.add("sel");hide("quiz");hide("done");show("start");$("score").textContent="0";$("streak").textContent="0";$("prog").style.width="0%";window.scrollTo(0,0)}
 function start(list){qs=list||make(n);ix=0;sc=0;st=0;bad=[];hide("start");hide("done");show("quiz");$("total").textContent=qs.length;render();window.scrollTo(0,0)}
 function feed(c,t){$("feed").className="feed "+c;$("feed").textContent=t}function clearFeed(){$("feed").className="feed";$("feed").textContent=""}
-function render(){cur=qs[ix];first=true;$("score").textContent=sc;$("streak").textContent=st;$("pos").textContent=ix+1;$("prog").style.width=(ix/qs.length*100)+"%";$("q").textContent=cur.q;$("answers").innerHTML="";hide("pic");hide("builder");clearFeed();$("next").disabled=true;$("check").disabled=false;$("clear").disabled=false;$("kind").textContent=ultra?"☠️ ULTRA SCHWER · 1 VERSUCH":(cur.t==="build"?"Satz-Puzzle":cur.t==="pic"?"Bilderrätsel":"Multiple Choice");if(cur.t==="pic"){$("pic").textContent=cur.e;show("pic")}if(cur.t==="build"){builder();return}cur.o.forEach(function(x){var b=document.createElement("button");b.type="button";b.className="choice";b.textContent=x;b.setAttribute("data-a",x);$("answers").appendChild(b)})}
-function answer(b,x){if(!$("next").disabled)return;if(x===cur.a){b.classList.add("ok");Array.prototype.forEach.call($("answers").children,function(z){z.disabled=true});var pts=first?10:5;sc+=pts;if(first)st++;$("score").textContent=sc;$("streak").textContent=st;feed("good","✅ Richtig! +"+pts+" Punkte");$("next").disabled=false}else{b.classList.add("no");bad.push(cur.k);st=0;first=false;$("streak").textContent="0";if(ultra){Array.prototype.forEach.call($("answers").children,function(z){z.disabled=true;if(z.getAttribute("data-a")===cur.a)z.classList.add("ok")});feed("bad","❌ Ein Versuch. Richtig wäre: "+cur.a);$("next").disabled=false}else{b.disabled=true;feed("bad","Fast – probier noch einmal.")}}}
+function render(){cur=qs[ix];first=true;$("score").textContent=sc;$("streak").textContent=st;$("pos").textContent=ix+1;$("prog").style.width=(ix/qs.length*100)+"%";$("q").textContent=cur.q;$("answers").innerHTML="";hide("pic");hide("builder");clearFeed();$("next").disabled=true;$("check").disabled=false;$("clear").disabled=false;$("kind").textContent=ultra?((cur.label||"☠️ ULTRA 2.0")+" · 1 VERSUCH"):(cur.t==="build"?"Satz-Puzzle":cur.t==="pic"?"Bilderrätsel":"Multiple Choice");if(cur.t==="pic"){$("pic").textContent=cur.e;show("pic")}if(cur.t==="build"){builder();return}cur.o.forEach(function(x){var b=document.createElement("button");b.type="button";b.className="choice";b.textContent=x;b.setAttribute("data-a",x);$("answers").appendChild(b)})}
+function answer(b,x){if(!$("next").disabled)return;if(x===cur.a){b.classList.add("ok");Array.prototype.forEach.call($("answers").children,function(z){z.disabled=true});var pts=first?10:5;sc+=pts;if(first)st++;$("score").textContent=sc;$("streak").textContent=st;feed("good","✅ Richtig! +"+pts+" Punkte");$("next").disabled=false}else{b.classList.add("no");bad.push(cur.k);st=0;first=false;$("streak").textContent="0";if(ultra){Array.prototype.forEach.call($("answers").children,function(z){z.disabled=true;if(z.getAttribute("data-a")===cur.a)z.classList.add("ok")});feed("bad","❌ Ein Versuch. Richtig wäre: "+cur.a+(cur.why?" · "+cur.why:""));$("next").disabled=false}else{b.disabled=true;feed("bad","Fast – probier noch einmal.")}}}
 function builder(){show("builder");$("sentence").innerHTML='<span class="muted">Tippe unten auf die Wörter.</span>';$("words").innerHTML="";sh(cur.w).forEach(function(x,i){var b=document.createElement("button");b.type="button";b.className="word";b.textContent=x;b.setAttribute("data-w",x);b.setAttribute("data-i",i);$("words").appendChild(b)})}
 function addWord(b){if(b.classList.contains("used"))return;if($("sentence").querySelector(".muted"))$("sentence").innerHTML="";var c=document.createElement("button");c.type="button";c.className="chip";c.textContent=b.getAttribute("data-w");c.setAttribute("data-i",b.getAttribute("data-i"));$("sentence").appendChild(c);b.classList.add("used")}
 function removeChip(c){var i=parseInt(c.getAttribute("data-i"),10),w=$("words").getElementsByTagName("button");if(w[i])w[i].classList.remove("used");c.parentNode.removeChild(c);if(!$("sentence").getElementsByTagName("button").length)$("sentence").innerHTML='<span class="muted">Tippe unten auf die Wörter.</span>'}
-function check(){var ch=$("sentence").getElementsByTagName("button"),a=[],i;for(i=0;i<ch.length;i++)a.push(ch[i].textContent);var s=a.join(" ");if(!s){feed("bad","Tippe zuerst auf die Wörter.");return}if(norm(s)===norm(cur.a)){var pts=first?12:6;sc+=pts;if(first)st++;$("score").textContent=sc;$("streak").textContent=st;feed("good","✅ Perfekt gebaut! +"+pts+" Punkte");$("next").disabled=false;$("check").disabled=true;$("clear").disabled=true}else{bad.push(cur.k);st=0;first=false;$("streak").textContent="0";if(ultra){feed("bad","❌ Ein Versuch. Richtig wäre: "+cur.a);$("next").disabled=false;$("check").disabled=true;$("clear").disabled=true}else{feed("bad","Noch nicht ganz. Tippe auf Wörter im Satz, um sie zurückzulegen.")}}}
+function check(){var ch=$("sentence").getElementsByTagName("button"),a=[],i;for(i=0;i<ch.length;i++)a.push(ch[i].textContent);var s=a.join(" ");if(!s){feed("bad","Tippe zuerst auf die Wörter.");return}if(norm(s)===norm(cur.a)){var pts=first?12:6;sc+=pts;if(first)st++;$("score").textContent=sc;$("streak").textContent=st;feed("good","✅ Perfekt gebaut! +"+pts+" Punkte");$("next").disabled=false;$("check").disabled=true;$("clear").disabled=true}else{bad.push(cur.k);st=0;first=false;$("streak").textContent="0";if(ultra){feed("bad","❌ Ein Versuch. "+(cur.why||("Richtig wäre: "+cur.a)));$("next").disabled=false;$("check").disabled=true;$("clear").disabled=true}else{feed("bad","Noch nicht ganz. Tippe auf Wörter im Satz, um sie zurückzulegen.")}}}
 function next(){ix++;if(ix>=qs.length)finish();else{render();window.scrollTo(0,0)}}
-function finish(){hide("quiz");show("done");var max=qs.reduce(function(s,q){return s+(q.t==="build"?12:10)},0),p=Math.max(0,Math.min(100,Math.round(sc/max*100)));$("pct").textContent=p;$("final").textContent=sc;$("resultText").textContent=ultra?(p>=90?"☠️ Ultra gemeistert – extrem stark!":p>=70?"Sehr stark für Ultra. Die kniffligen Unterschiede sitzen schon gut.":"Ultra war absichtlich fies. Die Fehler-Runde macht daraus Lernstoff."):(p>=90?"Superstark! Vieles sitzt schon sehr sicher.":p>=70?"Richtig gute Runde. Ein paar Wörter lohnen sich noch einmal.":"Die Fehler-Runde trainiert jetzt genau die schwierigen Wörter.");$("weak").innerHTML="";var w=[];bad.forEach(function(x){if(w.indexOf(x)<0)w.push(x)});w=w.slice(0,12);if(!w.length){$("weak").innerHTML="<b>Keine Fehler – wow! 🎉</b>";$("retry").textContent="🎲 Bonus-Runde"}else{$("retry").textContent="🔁 Fehler-Runde";w.forEach(function(x){var v=vfind(x),b=document.createElement("button");b.type="button";b.textContent=x;b.setAttribute("data-k",x);b.setAttribute("data-d",v?v.de:"");b.setAttribute("data-open","0");$("weak").appendChild(b)})}window.scrollTo(0,0)}
+function finish(){hide("quiz");show("done");var max=qs.reduce(function(s,q){return s+(q.t==="build"?12:10)},0),p=Math.max(0,Math.min(100,Math.round(sc/max*100)));$("pct").textContent=p;$("final").textContent=sc;$("resultText").textContent=ultra?(p>=90?"☠️ Ultra 2.0 gemeistert – Rechtschreibung, Fallen und Satzbau sitzen extrem sicher!":p>=70?"Sehr stark für Ultra 2.0. Vor allem bei den subtilen Schreibfehlern war das anspruchsvoll.":"Ultra 2.0 ist absichtlich sehr schwer: Rechtschreibfallen, minimale Unterschiede und Ablenker. Die Fehler-Runde macht daraus Lernstoff."):(p>=90?"Superstark! Vieles sitzt schon sehr sicher.":p>=70?"Richtig gute Runde. Ein paar Wörter lohnen sich noch einmal.":"Die Fehler-Runde trainiert jetzt genau die schwierigen Wörter.");$("weak").innerHTML="";var w=[];bad.forEach(function(x){if(w.indexOf(x)<0)w.push(x)});w=w.slice(0,12);if(!w.length){$("weak").innerHTML="<b>Keine Fehler – wow! 🎉</b>";$("retry").textContent="🎲 Bonus-Runde"}else{$("retry").textContent="🔁 Fehler-Runde";w.forEach(function(x){var v=vfind(x),b=document.createElement("button");b.type="button";b.textContent=x;b.setAttribute("data-k",x);b.setAttribute("data-d",v?v.de:"");b.setAttribute("data-open","0");$("weak").appendChild(b)})}window.scrollTo(0,0)}
 function retry(){ultra=false;var w=[];bad.forEach(function(x){if(w.indexOf(x)<0)w.push(x)});var p=pool().filter(function(q){return w.indexOf(q.k)>=0});if(p.length<8)p=p.concat(pick(pool(),8-p.length));start(sh(p).slice(0,12))}
 A.addEventListener("click",function(e){var b=e.target;while(b&&b!==A&&b.tagName!=="BUTTON")b=b.parentNode;if(!b||b===A||b.tagName!=="BUTTON")return;if(b.classList.contains("mode")){Array.prototype.forEach.call(document.querySelectorAll(".mode"),function(x){x.classList.remove("sel")});b.classList.add("sel");n=parseInt(b.getAttribute("data-n"),10)||20;ultra=b.getAttribute("data-hard")==="1";return}if(b.id==="startBtn"){start();return}if(b.id==="homeTop"||b.id==="homeBottom"){home();return}if(b.classList.contains("choice")){answer(b,b.getAttribute("data-a"));return}if(b.id==="next"&&!b.disabled){next();return}if(b.classList.contains("word")){addWord(b);return}if(b.classList.contains("chip")){removeChip(b);return}if(b.id==="clear"){builder();clearFeed();return}if(b.id==="check"){check();return}if(b.id==="retry"){retry();return}if(b.hasAttribute("data-k")){var o=b.getAttribute("data-open")==="1",en=b.getAttribute("data-k"),de=b.getAttribute("data-d");b.textContent=o?en:en+" → "+de;b.setAttribute("data-open",o?"0":"1")}},false);
 home();
